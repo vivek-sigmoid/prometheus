@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: usage-info
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: usage-info
+  template:
+    metadata:
+      labels:
+        app: usage-info
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: "30111"
+    spec:
+      containers:
+        - name: usage-info
+          image: asia.gcr.io/compact-record-332904/prometheus-assignment:v1
+          imagePullPolicy: Always
+          ports:
+          - containerPort: 4444
+#          volumeMounts:
+#          - name: tz-kolkata
+#            mountPath: /etc/localtime
+#      volumes:
+#        - name: tz-kolkata
+#          hostPath:
+#            path: /usr/share/zoneinfo/Asia/Kolkata
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: usage-info
+spec:
+  type: LoadBalancer
+  selector:
+    app: usage-info
+  ports:
+    - port: 4444
+      targetPort: 4444
